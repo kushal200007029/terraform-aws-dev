@@ -153,6 +153,20 @@ resource "aws_instance" "public_ec2" {
   associate_public_ip_address = true
   key_name                    = "helm"
 
+  user_data = <<-EOF
+              #!/bin/bash
+              set -e
+
+              apt update -y
+              apt install -y docker.io
+
+              systemctl start docker
+              systemctl enable docker
+
+              docker pull nginx
+              docker run -d -p 80:80 --name web nginx
+              EOF
+
   tags = {
     Name = "${var.project_name}-${var.environment}-public-ec2"
   }
